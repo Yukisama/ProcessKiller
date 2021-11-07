@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ProcessKiller
@@ -97,6 +100,23 @@ namespace ProcessKiller
                 {
                     switch (path)
                     {
+                        case "/killProcess":
+                            if (request.Method != HttpMethods.Post) { response.StatusCode = 405; break; }
+                            response.StatusCode = 200;
+                            var stream = new System.IO.StreamReader(request.Body);
+                            string data = await stream.ReadToEndAsync();
+                            var jdata = JsonDocument.Parse(data);
+                            var ps = System.Diagnostics.Process.GetProcesses().Where(s => s.ProcessName == jdata.RootElement.GetProperty("proceName").ToString());
+                            foreach (var p in ps) { p.Kill(); }
+                            await response.WriteAsync("killed");
+                            break;
+                        case "/getProcess":
+                            response.StatusCode = 200;
+                            response.ContentType = "application/json";
+                            List<string> runningProcesses = System.Diagnostics.Process.GetProcesses().Select(s => s.ProcessName).OrderBy(s => s).Distinct().ToList();
+                            string json = JsonSerializer.Serialize(runningProcesses);
+                            await response.WriteAsync(json);
+                            break;
                         default:
                             response.StatusCode = 404;
                             await response.WriteAsync("Wrong path");
