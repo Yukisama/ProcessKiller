@@ -28,7 +28,7 @@ namespace ProcessKiller
                 if (!Int32.TryParse(input, out port)) 
                 {
                     Console.WriteLine("\n");
-                    Console.Write("slease input number");
+                    Console.Write("please input number");
                     Console.WriteLine("\n");
                 }
             }

@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Webhost Test</title>
+    <style>
+        .btxt {
+            font-size: 20pt;
+        }
+
+        .rtext {
+            color: #ff0000;
+            font-size: 30pt;
+        }
+
+        #selProcess {
+            width: 200pt;
+        }
+    </style>
+    <script type="text/javascript">
+        this.init = function () {
+            let btnGetProcess = document.querySelector("#btnGetProcess");
+            let selProcess = document.querySelector("#selProcess");
+            let btnKillProcess = document.querySelector("#btnKillProcess");
+
+            function ajaxLoading() {
+                btnGetProcess.text = "Loading";
+                btnGetProcess.disable = true;
+                btnKillProcess.text = "Loading";
+                btnKillProcess.disable = true;
+            }
+
+            function ajaxLoaded() {
+                btnGetProcess.disable = false;
+                btnGetProcess.text = "Refersh Process";
+                btnKillProcess.disable = false;
+                btnKillProcess.text = "Kill Process";
+            }
+
+            function getProcess() {
+                selProcess.querySelectorAll("option").forEach(o => o.remove());
+
+                ajaxLoading();
+                fetch("/getProcess").then(r => r.json())
+                    .then(jdata => {
+                        ajaxLoaded();
+                        jdata.forEach(d => {
+                            let opt = document.createElement('option');
+                            opt.value = d;
+                            opt.text = d;
+                            selProcess.appendChild(opt);
+                        });
+                    });
+            }
+
+            function killProcess () {
+                let postdata = { proceName: selProcess.value };
+
+                ajaxLoading();
+                fetch("/killProcess", { method: 'post', body: JSON.stringify(postdata) }).then(r => r.text())
+                    .then(jdata => {
+                        ajaxLoaded();
+                        alert(jdata);
+                        getProcess();
+                    });
+            }
+
+            //init event
+            btnGetProcess.addEventListener("click", getProcess);
+            btnKillProcess.addEventListener("click", killProcess);
+            getProcess();
+        };
+        document.addEventListener("DOMContentLoaded", init);
+    </script>
+</head>
+<body>
+    <div class="btxt"> select the process name and press the "Kill Process" button to close the process. </div>
+    <div class="rtext"> DO NOT kill the system process!!! </div>
+    <input type="button" id="btnGetProcess" value="Refersh Process" />
+    <select id="selProcess"></select>
+    <input type="button" id="btnKillProcess" value="Kill Process" />
+</body>
+</html>
