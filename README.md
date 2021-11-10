@@ -6,7 +6,7 @@ this is an example
 
 using a pure html to control system  
 
-backend is .NET 5 OWIN using Kestrel  
+backend is .NET 6 OWIN using Kestrel  
 
 
 
