@@ -16,6 +16,7 @@ namespace ProcessKiller
         static async Task Main(string[] args)
         {
             string input = "";
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(ConsoleExit);
 
             //input webhost port
             while (port == 0)
@@ -24,8 +25,8 @@ namespace ProcessKiller
                 Console.WriteLine("setting webhost port");
                 Console.WriteLine(" (the port should be allowed in the firewall first. )");
                 Console.Write("Input port:");
-                input = Console.ReadLine();
-                if (!Int32.TryParse(input, out port)) 
+                input = Console.ReadLine()??"";
+                if (!Int32.TryParse(input, out port))
                 {
                     Console.WriteLine("\n");
                     Console.Write("please input number");
@@ -69,7 +70,7 @@ namespace ProcessKiller
             while ("Q" != input.ToUpper())
             {
                 Console.WriteLine("\nPress q to close system\n\n");
-                input=Console.ReadKey().KeyChar.ToString();
+                input = Console.ReadKey().KeyChar.ToString();
             }
 
             //system closing
@@ -85,6 +86,14 @@ namespace ProcessKiller
             Console.WriteLine("Press anykey to exit\n\n");
             Console.WriteLine("\n");
             Console.ReadKey();
+        }
+
+        private static async void ConsoleExit(object? sender, EventArgs e)
+        {
+            if (webhost != null)
+            {
+                await webhost.StopAsync();
+            }
         }
 
         protected static void configure(IApplicationBuilder app)
